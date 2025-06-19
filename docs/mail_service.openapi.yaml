@@ -1,0 +1,69 @@
+openapi: 3.1.0
+info:
+  title: Mail service's APIs
+  description: APIs for sending emails
+  version: 1.0.0
+servers:
+  - url: http://localhost:10003
+    description: Local mail server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /mail/manual_send:
+    post:
+      summary: Send email manually
+      description: Sends an email to the specified recipient.
+      security:
+      - bearerAuth: []
+      parameters:
+        - name: start_time
+          in: query
+          required: true
+          description: The start time for filtering emails
+          schema:
+            type: integer
+            example: 1743440400
+        - name: end_time
+          in: query
+          required: true
+          description: The end time for filtering emails
+          schema:
+            type: integer
+            example: 1746032400
+      responses:
+        '200':
+          description: Email sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email sent successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid email data
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error

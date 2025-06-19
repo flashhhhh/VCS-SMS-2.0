@@ -1,0 +1,11 @@
+services:
+  user_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: user_service:latest
+    environment:
+      - RUNNING_ENVIORNMENT=local
+    volumes:
+      - .:/app
+    network_mode: host

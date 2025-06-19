@@ -1,0 +1,23 @@
+services:
+  swagger:
+    image: swaggerapi/swagger-ui
+    environment:
+      - SWAGGER_CONFIG_URL=/swagger-config.yaml
+    volumes:
+      - ./docs:/usr/share/nginx/html/docs
+      - ./swagger-config.yaml:/usr/share/nginx/html/swagger-config.yaml
+    network_mode: host
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345678
+    volumes:
+      - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
+      - postgres_data:/var/lib/postgresql/data
+    network_mode: host
+
+volumes:
+  postgres_data:
+    driver: local

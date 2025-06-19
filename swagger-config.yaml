@@ -1,0 +1,9 @@
+urls:
+  - url: ./docs/openapi.yaml
+    name: Gateway API
+  - url: ./docs/user_service.openapi.yaml
+    name: User Service
+  - url: ./docs/server_adm_service.openapi.yaml
+    name: Server Admin Service
+  - url: ./docs/mail_service.openapi.yaml
+    name: Mail Service
