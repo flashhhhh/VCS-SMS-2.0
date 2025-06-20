@@ -34,20 +34,13 @@ paths:
                 server_name:
                   type: string
                   example: "Server 1"
-                status:
-                  type: string
-                  example: "On"
                 ipv4:
                   type: string
                   format: ipv4
                   example: ""
-                port:
-                  type: integer
-                  example: 80
               required:
                 - server_id
                 - server_name
-                - status
                 - ipv4
 
       responses:
@@ -61,7 +54,7 @@ paths:
                   message:
                     type: string
                     example: Server created successfully
-                  serverID:
+                  ID:
                     type: string
                     example: 12345
         '400':
@@ -149,13 +142,6 @@ paths:
             type: string
             format: ipv4
             example: "192.168.1.1"
-        - name: port
-          in: query
-          required: false
-          description: The port of the server to retrieve
-          schema:
-            type: integer
-            example: 80
       responses:
         '200':
           description: Servers retrieved successfully
@@ -179,9 +165,6 @@ paths:
                       type: string
                       format: ipv4
                       example: "192.168.1.1"
-                    port:
-                      type: integer
-                      example: 80
         '404':
           description: No servers found
           content:
@@ -228,16 +211,10 @@ paths:
                 server_name:
                   type: string
                   example: "Updated Server 1"
-                status:
-                  type: string
-                  example: "Off"
                 ipv4:
                   type: string
                   format: ipv4
                   example: ""
-                port:
-                  type: integer
-                  example: 8080
       responses:
         '200':
           description: Server updated successfully
@@ -367,9 +344,6 @@ paths:
                           type: string
                           format: ipv4
                           example: "192.168.1.1"
-                        port:
-                          type: integer
-                          example: 80
                   non_imported_servers:
                     type: array
                     items:
@@ -388,9 +362,6 @@ paths:
                           type: string
                           format: ipv4
                           example: "192.168.1.1"
-                        port:
-                          type: integer
-                          example: 80
         '400':
           description: Bad request
           content:
@@ -475,13 +446,6 @@ paths:
             type: string
             format: ipv4
             example: "192.168.1.1"
-        - name: port
-          in: query
-          required: false
-          description: The port of the server to retrieve
-          schema:
-            type: integer
-            example: 80
       responses:
         '200':
           description: Server data exported successfully

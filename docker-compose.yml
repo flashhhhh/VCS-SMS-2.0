@@ -15,9 +15,9 @@ services:
       - POSTGRES_PASSWORD=12345678
     volumes:
       - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
-      - postgres_data:/var/lib/postgresql/data
+    network_mode: host
+  
+  redis:
+    image: redis:latest
     network_mode: host
 
-volumes:
-  postgres_data:
-    driver: local
