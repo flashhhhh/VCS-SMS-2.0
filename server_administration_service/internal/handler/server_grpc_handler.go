@@ -43,18 +43,21 @@ func (h *ServerGRPCHandler) GetAddressAndStatus(ctx context.Context, req *proto.
 	return idAddressAndStatusList, nil
 }
 
-func (h *ServerGRPCHandler) UpdateStatus(ctx context.Context, req *proto.ServerStatus) (*proto.EmptyResponse, error) {
-	id := int(req.Id)
-	status := req.Status
+func (h *ServerGRPCHandler) UpdateStatus(ctx context.Context, req *proto.ServerStatusList) (*proto.EmptyResponse, error) {
+	for _, serverStatus := range req.StatusList {
+		id := int(serverStatus.Id)
+		status := serverStatus.Status
 
-	logging.LogMessage("server_administration_service", "Update status " + status + " for id " + strconv.Itoa(id), "INFO")
+		logging.LogMessage("server_administration_service", "Update status " + status + " for id " + strconv.Itoa(id), "INFO")
 
-	err := h.serverGRPCService.UpdateStatus(id, status)
-	if err != nil {
-		logging.LogMessage("server_administration_service", "Failed to update status " + status + " for id " + strconv.Itoa(id) + ", err: " + err.Error(), "INFO")
-		return &proto.EmptyResponse{}, err
+		err := h.serverGRPCService.UpdateStatus(id, status)
+		if err != nil {
+			logging.LogMessage("server_administration_service", "Failed to update status " + status + " for id " + strconv.Itoa(id) + ", err: " + err.Error(), "INFO")
+			// return &proto.EmptyResponse{}, err
+		}
+
+		logging.LogMessage("server_administration_service", "Update status " + status + " for id " + strconv.Itoa(id) + " successfully!", "INFO")
 	}
 
-	logging.LogMessage("server_administration_service", "Update status " + status + " for id " + strconv.Itoa(id) + " successfully!", "INFO")
 	return &proto.EmptyResponse{}, nil
 }
