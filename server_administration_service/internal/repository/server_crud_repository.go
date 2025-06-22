@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"server_administration_service/internal/domain"
 	"server_administration_service/internal/dto"
-	"strconv"
 
 	"github.com/flashhhhh/pkg/logging"
 	"github.com/redis/go-redis/v9"
@@ -38,8 +37,22 @@ func (r *serverCRUDRepository) CreateServer(server *domain.Server) (int, error) 
 		return 0, err
 	}
 
-	// Default status is "Off" = 0
-	err = r.redis.SetBit(context.Background(), "server_status", int64(server.ID), 0).Err()
+	// // Write to Elasticsearch
+	// doc := map[string]any{
+	// 	"ID": server.ID,
+	// 	"Status": "On",
+	// 	"Timestamp": time.Now(),
+	// }
+
+	// eslib.CreateDocument(r.es, env.GetEnv("ES_NAME", "ping_status"), doc)
+
+	// doc = map[string]any {
+	// 	"ID": server.ID,
+	// 	"Status": "Off",
+	// 	"Timestamp": time.Now(),
+	// }
+
+	// eslib.CreateDocument(r.es, env.GetEnv("ES_NAME", "ping_status"), doc)
 	
 	return server.ID, nil
 }
@@ -79,17 +92,6 @@ func (r *serverCRUDRepository) CreateServers(servers []domain.Server) ([]domain.
 	for _, server := range servers {
 		if !insertedMap[server.ServerID] {
 			nonInsertedServer = append(nonInsertedServer, server)
-		}
-	}
-
-	// Update Redis bitmap for inserted records
-	for _, server := range result {
-		logging.LogMessage("server_administration_service", "Server " + strconv.Itoa(server.ID) + " inserted successfully", "INFO")
-
-		status := 0 // "Off"
-
-		if err := r.redis.SetBit(context.Background(), "server_status", int64(server.ID), status).Err(); err != nil {
-			logging.LogMessage("server_administration_service", "Error updating Redis bitmap for server ID: " + strconv.Itoa(server.ID) + ", error: "+err.Error(), "ERROR")
 		}
 	}
 

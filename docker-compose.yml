@@ -21,3 +21,15 @@ services:
     image: redis:latest
     network_mode: host
 
+  elasticsearch:
+    image: elasticsearch:9.0.2
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    network_mode: host
+  
+  kibana:
+    image: kibana:9.0.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://localhost:9200
+    network_mode: host

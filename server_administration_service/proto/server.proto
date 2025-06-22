@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package server_administration_service;
+
+option go_package = "./proto";
+
+service ServerAdministrationService {
+    rpc GetAddressAndStatus (EmptyRequest) returns (IDAddressAndStatusList);
+    rpc UpdateStatus (ServerStatus) returns (EmptyResponse);
+}
+
+message EmptyRequest {}
+
+message IDAddressAndStatus {
+    int64 id = 1;
+    string address = 2;
+    string status = 3;
+}
+
+message IDAddressAndStatusList {
+    repeated IDAddressAndStatus serverList = 1;
+}
+
+message ServerStatus {
+    int64 id = 1;
+    string status = 2;
+}
+
+message EmptyResponse {}
