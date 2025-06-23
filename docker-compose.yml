@@ -3,33 +3,54 @@ services:
     image: swaggerapi/swagger-ui
     environment:
       - SWAGGER_CONFIG_URL=/swagger-config.yaml
+    ports:
+      - 8080:8080
     volumes:
       - ./docs:/usr/share/nginx/html/docs
       - ./swagger-config.yaml:/usr/share/nginx/html/swagger-config.yaml
-    network_mode: host
+    networks:
+      - vcs-sms-network
 
   postgres:
     image: postgres:latest
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=12345678
+    ports:
+      - 5432:5432
     volumes:
       - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
-    network_mode: host
+    networks:
+      - vcs-sms-network
   
   redis:
     image: redis:latest
-    network_mode: host
+    ports:
+      - 6379:6379
+    networks:
+      - vcs-sms-network
 
   elasticsearch:
     image: elasticsearch:9.0.2
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
-    network_mode: host
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+    networks:
+      - vcs-sms-network
   
   kibana:
     image: kibana:9.0.2
     environment:
-      - ELASTICSEARCH_HOSTS=http://localhost:9200
-    network_mode: host
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    networks:
+      - vcs-sms-network
+
+networks:
+  vcs-sms-network:
+    driver: bridge
+    name: vcs-sms-network

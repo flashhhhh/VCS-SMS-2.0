@@ -8,4 +8,10 @@ services:
       - RUNNING_ENVIRONMENT=local
     volumes:
       - .:/app
-    network_mode: host
+    networks:
+      - vcs-sms-network
+
+networks:
+  vcs-sms-network:
+    external: true
+    name: vcs-sms-network
