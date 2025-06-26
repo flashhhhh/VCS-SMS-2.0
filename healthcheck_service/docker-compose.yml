@@ -6,8 +6,6 @@ services:
     image: healthcheck_service:latest
     environment:
       - RUNNING_ENVIRONMENT=local
-    volumes:
-      - .:/app
     networks:
       - vcs-sms-network
 

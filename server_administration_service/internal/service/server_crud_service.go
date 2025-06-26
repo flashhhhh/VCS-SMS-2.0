@@ -87,13 +87,10 @@ func (s *serverCRUDService) ImportServers(buf []byte) ([]domain.Server, []domain
 	for id, val := range rows[0] {
 		if val == "Server ID" {
 			serverID_col = id
-			break
 		} else if val == "Server Name" {
 			serverName_col = id
-			break
 		} else if val == "IPv4" {
 			ipv4_col = id
-			break
 		}
 	}
 

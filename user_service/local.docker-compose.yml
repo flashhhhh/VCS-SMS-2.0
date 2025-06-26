@@ -1,0 +1,19 @@
+services:
+  user_service:
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    image: local_user_service:latest
+    environment:
+      - RUNNING_ENVIORNMENT=local
+    ports:
+      - 10001:10001
+    volumes:
+      - .:/app
+    networks:
+      - vcs-sms-network
+
+networks:
+  vcs-sms-network:
+    external: true
+    name: vcs-sms-network

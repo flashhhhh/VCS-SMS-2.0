@@ -15,7 +15,7 @@ components:
       bearerFormat: JWT
 
 paths:
-  /mail/manual_send:
+  /send:
     post:
       summary: Send email manually
       description: Sends an email to the specified recipient.
@@ -27,15 +27,22 @@ paths:
           required: true
           description: The start time for filtering emails
           schema:
-            type: integer
-            example: 1743440400
+            type: string
+            example: 2025-06-24T00:00:00Z
         - name: end_time
           in: query
           required: true
           description: The end time for filtering emails
           schema:
-            type: integer
-            example: 1746032400
+            type: string
+            example: 2025-06-24T23:59:59Z
+        - name: to
+          in: query
+          required: true
+          description: The email receiver
+          schema:
+            type: string
+            example: abc@gmail.com
       responses:
         '200':
           description: Email sent successfully

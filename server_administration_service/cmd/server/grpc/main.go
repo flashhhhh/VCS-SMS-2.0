@@ -6,7 +6,6 @@ import (
 	"server_administration_service/infrastructure/elasticsearch"
 	"server_administration_service/infrastructure/grpc"
 	"server_administration_service/infrastructure/postgres"
-	"server_administration_service/infrastructure/redis"
 	"server_administration_service/internal/handler"
 	"server_administration_service/internal/repository"
 	"server_administration_service/internal/service"
@@ -52,20 +51,18 @@ func main() {
 		logging.LogMessage("server_administration_service", "Skipping database migrations in non-local environment", "INFO")
 	}
 
-	// Initialize Redis client
-	redisAddress := env.GetEnv("REDIS_HOST", "localhost") + 
-				":" + env.GetEnv("REDIS_PORT", "6379")
-	redis := redis.NewRedisClient(redisAddress)
-
 	// Initialize ES client
 	esAddress := env.GetEnv("ES_HOST", "http://localhost") +
 				":" + env.GetEnv("ES_PORT", "9200")
 	es := elasticsearch.ConnectES(esAddress)
 
 	// Initialize the server
-	serverGRPCRepository := repository.NewServerGRPCRepository(db, redis, es)
+	serverGRPCRepository := repository.NewServerGRPCRepository(db, es)
 	serverGRPCService := service.NewServerGRPCService(serverGRPCRepository)
-	serverGRPCHandler := handler.NewServerGRPCHandler(serverGRPCService)
+
+	serverInfoRepository := repository.NewServerInfoRepository(db, es)
+	serverInfoService := service.NewServerInfoService(serverInfoRepository)
+	serverGRPCHandler := handler.NewServerGRPCHandler(serverGRPCService, serverInfoService)
 
 	serverGRPCPort := env.GetEnv("SERVER_ADMINISTRATION_GPRC_PORT", "50051")
 	logging.LogMessage("server_administration_service", "Starting gRPC server on port " + serverGRPCPort, "INFO")

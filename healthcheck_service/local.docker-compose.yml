@@ -1,0 +1,17 @@
+services:
+  healthcheck_service:
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    image: local_healthcheck_service:latest
+    environment:
+      - RUNNING_ENVIRONMENT=local
+    volumes:
+      - .:/app
+    networks:
+      - vcs-sms-network
+
+networks:
+  vcs-sms-network:
+    external: true
+    name: vcs-sms-network

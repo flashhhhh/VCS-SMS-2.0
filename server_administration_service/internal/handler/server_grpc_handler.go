@@ -11,12 +11,14 @@ import (
 
 type ServerGRPCHandler struct {
 	serverGRPCService service.ServerGRPCService
+	serverInfoService service.ServerInfoService
 	proto.UnimplementedServerAdministrationServiceServer
 }
 
-func NewServerGRPCHandler(serverGRPCService service.ServerGRPCService) *ServerGRPCHandler {
+func NewServerGRPCHandler(serverGRPCService service.ServerGRPCService, serverInfoService service.ServerInfoService) *ServerGRPCHandler {
 	return &ServerGRPCHandler{
 		serverGRPCService: serverGRPCService,
+		serverInfoService: serverInfoService,
 	}
 }
 
@@ -60,4 +62,37 @@ func (h *ServerGRPCHandler) UpdateStatus(ctx context.Context, req *proto.ServerS
 	}
 
 	return &proto.EmptyResponse{}, nil
+}
+
+func (h *ServerGRPCHandler) GetServersInformation(ctx context.Context, req *proto.TimeRequest) (*proto.ServersInformationResponse, error) {
+	numServers, err := h.serverInfoService.GetNumServers()
+	if err != nil {
+		logging.LogMessage("server_administration_service", "Failed to get the number of servers, err: " + err.Error(), "ERROR")
+		return &proto.ServersInformationResponse{}, err
+	}
+
+	numOnServers, err := h.serverInfoService.GetNumOnServers()
+	if err != nil {
+		logging.LogMessage("server_administration_service", "Failed to get the number of ON servers, err: " + err.Error(), "ERROR")
+		return &proto.ServersInformationResponse{}, err
+	}
+
+	numOffServers, err := h.serverInfoService.GetNumOffServers()
+	if err != nil {
+		logging.LogMessage("server_administration_service", "Failed to get the number of OFF servers, err: " + err.Error(), "ERROR")
+		return &proto.ServersInformationResponse{}, err
+	}
+
+	meanUpTimeRatio, err := h.serverInfoService.GetServerMeanUpTimeRatio(req.StartTime, req.EndTime)
+	if err != nil {
+		logging.LogMessage("server_administration_service", "Failed to get the mean of uptime ratio, err: " + err.Error(), "ERROR")
+		return &proto.ServersInformationResponse{}, err
+	}
+
+	return &proto.ServersInformationResponse{
+		NumServers: int64(numServers),
+		NumOnServers: int64(numOnServers),
+		NumOffServers: int64(numOffServers),
+		MeanUpTimeRatio: meanUpTimeRatio,
+	}, nil
 }

@@ -1,13 +1,11 @@
 package repository
 
 import (
-	"context"
 	"fmt"
 	"server_administration_service/internal/domain"
 	"server_administration_service/internal/dto"
 
 	"github.com/flashhhhh/pkg/logging"
-	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -21,13 +19,11 @@ type ServerCRUDRepository interface {
 
 type serverCRUDRepository struct {
 	db *gorm.DB
-	redis *redis.Client
 }
 
-func NewServerCRUDRepository(db *gorm.DB, redis *redis.Client) ServerCRUDRepository {
+func NewServerCRUDRepository(db *gorm.DB) ServerCRUDRepository {
 	return &serverCRUDRepository{
 		db: db,
-		redis: redis,
 	}
 }
 
@@ -37,7 +33,7 @@ func (r *serverCRUDRepository) CreateServer(server *domain.Server) (int, error) 
 		return 0, err
 	}
 
-	// // Write to Elasticsearch
+	// Write to Elasticsearch
 	// doc := map[string]any{
 	// 	"ID": server.ID,
 	// 	"Status": "On",
@@ -59,7 +55,7 @@ func (r *serverCRUDRepository) CreateServer(server *domain.Server) (int, error) 
 
 func (r *serverCRUDRepository) CreateServers(servers []domain.Server) ([]domain.Server, []domain.Server, error) {
 	query := `
-		INSERT INTO servers (server_id, server_name, status, ipv4, port) VALUES 
+		INSERT INTO servers (server_id, server_name, status, ipv4) VALUES 
 	`
 
 	for i, server := range servers {
@@ -76,7 +72,7 @@ func (r *serverCRUDRepository) CreateServers(servers []domain.Server) ([]domain.
 	var result []domain.Server
 	err := r.db.Raw(query).Scan(&result).Error
 	if err != nil {
-		logging.LogMessage("server_administration_service", "Error inserting servers: "+err.Error(), "ERROR")
+		logging.LogMessage("server_administration_service", "Error inserting servers: " + err.Error(), "ERROR")
 		return nil, nil, err
 	}
 
@@ -152,11 +148,6 @@ func (r *serverCRUDRepository) DeleteServer(serverID string) error {
 
 	// Delete the server
 	if err := r.db.Where("server_id = ?", serverID).Delete(&domain.Server{}).Error; err != nil {
-		return err
-	}
-
-	// Update Redis bitmap
-	if err := r.redis.SetBit(context.Background(), "server_status", int64(server.ID), 0).Err(); err != nil {
 		return err
 	}
 

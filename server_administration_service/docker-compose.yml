@@ -8,8 +8,8 @@ services:
       - RUNNING_ENVIRONMENT=local
     ports:
       - 10002:10002
-    volumes:
-      - .:/app
+    # volumes:
+    #   - .:/app
     networks:
       - vcs-sms-network
 

@@ -4,7 +4,7 @@ services:
     environment:
       - SWAGGER_CONFIG_URL=/swagger-config.yaml
     ports:
-      - 8080:8080
+      - 8000:8080
     volumes:
       - ./docs:/usr/share/nginx/html/docs
       - ./swagger-config.yaml:/usr/share/nginx/html/swagger-config.yaml
@@ -20,13 +20,6 @@ services:
       - 5432:5432
     volumes:
       - ./postgres_init.sql:/docker-entrypoint-initdb.d/postgres_init.sql
-    networks:
-      - vcs-sms-network
-  
-  redis:
-    image: redis:latest
-    ports:
-      - 6379:6379
     networks:
       - vcs-sms-network
 

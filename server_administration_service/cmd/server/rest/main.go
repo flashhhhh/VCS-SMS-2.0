@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"server_administration_service/api/routes"
 	"server_administration_service/infrastructure/postgres"
-	"server_administration_service/infrastructure/redis"
 	"server_administration_service/internal/handler"
 	"server_administration_service/internal/repository"
 	"server_administration_service/internal/service"
@@ -54,13 +53,8 @@ func main() {
 		logging.LogMessage("server_administration_service", "Skipping database migrations in non-local environment", "INFO")
 	}
 
-	// Initialize Redis client
-	redisAddress := env.GetEnv("REDIS_HOST", "localhost") + 
-				":" + env.GetEnv("REDIS_PORT", "6379")
-	redis := redis.NewRedisClient(redisAddress)
-
 	// Initialize the server
-	serverRepository := repository.NewServerCRUDRepository(db, redis)
+	serverRepository := repository.NewServerCRUDRepository(db)
 	serverService := service.NewServerCRUDService(serverRepository)
 	serverHandler := handler.NewServerRestHandler(serverService)
 

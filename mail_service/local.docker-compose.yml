@@ -1,0 +1,19 @@
+services:
+  mail_service:
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    image: local_mail_service:latest
+    environment:
+      - RUNNING_ENVIRONMENT=local
+    ports:
+      - 10003:10003
+    volumes:
+      - .:/app
+    networks:
+      - vcs-sms-network
+
+networks:
+  vcs-sms-network:
+    external: true
+    name: vcs-sms-network

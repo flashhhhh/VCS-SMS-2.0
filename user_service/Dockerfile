@@ -1,6 +1,25 @@
-# How to write Dockerfile for mounting this local directory to the container so that the code can be edited without rebuilding the image
-FROM golang:alpine
+FROM golang:alpine AS builder
+
+RUN apk add --no-cache ca-certificates && \
+    update-ca-certificates
 
 WORKDIR /app
 
-CMD ["sh", "-c", "go mod tidy && go run cmd/server/rest/main.go & go run cmd/server/grpc/main.go"]
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN go build -o rest-server cmd/server/rest/main.go
+
+FROM alpine:latest
+
+RUN apk add --no-cache ca-certificates && \
+    update-ca-certificates
+
+WORKDIR /app
+
+COPY --from=builder /app/rest-server ./rest-server
+COPY configs/ ./configs/
+
+CMD ["./rest-server"]

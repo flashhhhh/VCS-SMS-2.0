@@ -28,6 +28,7 @@ func (w *serverAdministrationGRPCClientWrapper) UpdateStatus(ctx context.Context
 func StartGRPCClient() (ServerAdministrationGRPCClient, error) {
 	// Create a connection to the server.
 	conn, err := grpc.Dial(env.GetEnv("GRPC_SERVER_ADMINISTRATION_SERVER", "localhost") + ":" + env.GetEnv("GRPC_SERVER_ADMINISTRATION_PORT", "50052"), grpc.WithInsecure())
+	println(env.GetEnv("GRPC_SERVER_ADMINISTRATION_SERVER", "localhost") + ":" + env.GetEnv("GRPC_SERVER_ADMINISTRATION_PORT", "50052"))
 	if err != nil {
 		return nil, err
 	}

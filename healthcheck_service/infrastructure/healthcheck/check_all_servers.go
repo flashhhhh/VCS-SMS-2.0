@@ -19,7 +19,6 @@ func CheckAllServers(serverAddresses *proto.IDAddressAndStatusList) (proto.Serve
 	var serverStatusList []*proto.ServerStatus
 
 	var mu sync.Mutex
-	statusChanged := make(chan *proto.ServerStatus, len(serverAddresses.ServerList))
 
 	for _, serverAddress := range serverAddresses.ServerList {
 		semaphore <- struct{}{}
@@ -35,9 +34,11 @@ func CheckAllServers(serverAddresses *proto.IDAddressAndStatusList) (proto.Serve
 			address := serverAddress.Address
 			status := serverAddress.Status
 
+			logging.LogMessage("healthcheck_service", "Pinging to address " + address, "INFO")
+
 			newStatusBool, err := IsHostUp(address)
 			if err != nil {
-				logging.LogMessage("healthcheck_service", "Pinging to address " + address + " makes error: " + err.Error(), "DEBUG")
+				logging.LogMessage("healthcheck_service", "Pinging to address "+address+" makes error: "+err.Error(), "DEBUG")
 			}
 
 			newStatus := "Off"
@@ -46,34 +47,18 @@ func CheckAllServers(serverAddresses *proto.IDAddressAndStatusList) (proto.Serve
 			}
 
 			if status != newStatus {
-				statusChanged <- &proto.ServerStatus{
+				mu.Lock()
+				serverStatusList = append(serverStatusList, &proto.ServerStatus{
 					Id:     id,
 					Status: newStatus,
-				}
+				})
+				mu.Unlock()
 			}
+
+			logging.LogMessage("healthcheck_service", "Pinging to address " + address + " with status " + newStatus, "INFO")
 		}(serverAddress)
 	}
 
-	go func() {
-		wg.Wait()
-		close(statusChanged)
-	}()
-
-	for s := range statusChanged {
-		mu.Lock()
-		serverStatusList = append(serverStatusList, s)
-		mu.Unlock()
-	}
-
 	wg.Wait()
-
-	// If you need to return []proto.ServerStatus, convert pointers to values here (without copying the mutex)
-	statusList := make([]proto.ServerStatus, len(serverStatusList))
-	for i, s := range serverStatusList {
-		statusList[i] = proto.ServerStatus{
-			Id:     s.Id,
-			Status: s.Status,
-		}
-	}
 	return proto.ServerStatusList{StatusList: serverStatusList}, nil
 }

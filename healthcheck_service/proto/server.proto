@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package server_administration_service;
+package healthcheck_service;
 
 option go_package = "./proto";
 

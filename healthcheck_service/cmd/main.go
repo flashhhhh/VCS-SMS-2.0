@@ -36,7 +36,7 @@ func main() {
 
 	serverAdministrationGRPCClient, err := grpcclient.StartGRPCClient()
 	if err != nil {
-		logging.LogMessage("healthcheck_service", "Failed to connect to Server Administration's GRPC server, err: " + err.Error(), "INFO")
+		logging.LogMessage("healthcheck_service", "Failed to connect to Server Administration's GRPC server, err: " + err.Error(), "ERROR")
 		logging.LogMessage("healthcheck_service", "Exiting ...", "FATAL")
 		os.Exit(1)
 	}
@@ -49,11 +49,11 @@ func main() {
 
 		serverAddressesList, err := serverAdministrationGRPCClient.GetAddressAndStatus(context.Background(), &proto.EmptyRequest{})
 		if err != nil {
-			logging.LogMessage("healthcheck_service", "Failed to receive addresses and status of all servers", "INFO")
+			logging.LogMessage("healthcheck_service", "Failed to receive addresses and status of all servers, err: " + err.Error(), "ERROR")
 		} else {
 			serverStatusList, err := healthcheck.CheckAllServers(serverAddressesList)
 			if err != nil {
-				logging.LogMessage("healthcheck_service", "Failed to healthcheck all servers, err: " + err.Error(), "INFO")
+				logging.LogMessage("healthcheck_service", "Failed to healthcheck all servers, err: " + err.Error(), "ERROR")
 			}
 
 			serverAdministrationGRPCClient.UpdateStatus(context.Background(), &serverStatusList)

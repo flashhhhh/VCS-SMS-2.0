@@ -20,7 +20,7 @@ paths:
       summary: Create a new user
       description: Creates a new user with the provided details.
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         description: User information
         content:
@@ -142,7 +142,7 @@ paths:
       summary: Get user by ID
       description: Retrieves user information based on the provided user ID.
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
         - name: userID
           in: query
@@ -202,7 +202,7 @@ paths:
       summary: Get all users
       description: Retrieves a list of all users.
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
         '200':
           description: Users retrieved successfully
@@ -260,20 +260,13 @@ paths:
                 server_name:
                   type: string
                   example: "Server 1"
-                status:
-                  type: string
-                  example: "On"
                 ipv4:
                   type: string
                   format: ipv4
                   example: ""
-                port:
-                  type: integer
-                  example: 80
               required:
                 - server_id
                 - server_name
-                - status
                 - ipv4
 
       responses:
@@ -287,7 +280,7 @@ paths:
                   message:
                     type: string
                     example: Server created successfully
-                  serverID:
+                  ID:
                     type: string
                     example: 12345
         '400':
@@ -375,13 +368,6 @@ paths:
             type: string
             format: ipv4
             example: "192.168.1.1"
-        - name: port
-          in: query
-          required: false
-          description: The port of the server to retrieve
-          schema:
-            type: integer
-            example: 80
       responses:
         '200':
           description: Servers retrieved successfully
@@ -405,9 +391,6 @@ paths:
                       type: string
                       format: ipv4
                       example: "192.168.1.1"
-                    port:
-                      type: integer
-                      example: 80
         '404':
           description: No servers found
           content:
@@ -454,16 +437,10 @@ paths:
                 server_name:
                   type: string
                   example: "Updated Server 1"
-                status:
-                  type: string
-                  example: "Off"
                 ipv4:
                   type: string
                   format: ipv4
                   example: ""
-                port:
-                  type: integer
-                  example: 8080
       responses:
         '200':
           description: Server updated successfully
@@ -593,9 +570,6 @@ paths:
                           type: string
                           format: ipv4
                           example: "192.168.1.1"
-                        port:
-                          type: integer
-                          example: 80
                   non_imported_servers:
                     type: array
                     items:
@@ -614,9 +588,6 @@ paths:
                           type: string
                           format: ipv4
                           example: "192.168.1.1"
-                        port:
-                          type: integer
-                          example: 80
         '400':
           description: Bad request
           content:
@@ -701,13 +672,6 @@ paths:
             type: string
             format: ipv4
             example: "192.168.1.1"
-        - name: port
-          in: query
-          required: false
-          description: The port of the server to retrieve
-          schema:
-            type: integer
-            example: 80
       responses:
         '200':
           description: Server data exported successfully
@@ -736,8 +700,9 @@ paths:
                   error:
                     type: string
                     example: Internal server error
+
   
-  /mail/manual_send:
+  /mail/send:
     post:
       summary: Send email manually
       description: Sends an email to the specified recipient.
@@ -749,15 +714,22 @@ paths:
           required: true
           description: The start time for filtering emails
           schema:
-            type: integer
-            example: 1743440400
+            type: string
+            example: 2025-06-24T00:00:00Z
         - name: end_time
           in: query
           required: true
           description: The end time for filtering emails
           schema:
-            type: integer
-            example: 1746032400
+            type: string
+            example: 2025-06-24T23:59:59Z
+        - name: to
+          in: query
+          required: true
+          description: The email receiver
+          schema:
+            type: string
+            example: abc@gmail.com
       responses:
         '200':
           description: Email sent successfully
