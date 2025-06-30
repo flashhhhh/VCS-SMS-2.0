@@ -1,0 +1,763 @@
+openapi: 3.1.0
+info:
+  title: Server Management System APIs
+  description: APIs for managing users and servers
+  version: 1.0.0
+servers:
+  - url: http://localhost
+    description: Deployment server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /user/create:
+    post:
+      summary: Create a new user
+      description: Creates a new user with the provided details.
+      security:
+      - bearerAuth: []
+      requestBody:
+        description: User information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                password:
+                  type: string
+                  example: password123
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  example: abc123@gmail.com
+                role:
+                  type: string
+                  enum: [sudo, admin, user]
+                  example: user
+              required:
+                - username
+                - password
+                - name
+                - role
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User created successfully
+                  userID:
+                    type: string
+                    example: 12345
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid input data
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /user/login:
+    post:
+      summary: User login
+      description: Authenticates a user and returns a token.
+      requestBody:
+        description: User login credentials
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                password:
+                  type: string
+                  example: password123
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: abcdef1234567890
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid username or password
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /user/getUserByID:
+    get:
+      summary: Get user by ID
+      description: Retrieves user information based on the provided user ID.
+      security:
+      - bearerAuth: []
+      parameters:
+        - name: userID
+          in: query
+          required: true
+          description: The ID of the user to retrieve
+          schema:
+            type: string
+            example: 12345
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userID:
+                    type: string
+                    example: 12345
+                  username:
+                    type: string
+                    example: johndoe
+                  name:
+                    type: string
+                    example: John Doe
+                  email:
+                    type: string
+                    format: email
+                    example:
+                  role:
+                    type: string
+                    enum: [sudo, admin, user]
+                    example: user
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /user/getAllUsers:
+    get:
+      summary: Get all users
+      description: Retrieves a list of all users.
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userID:
+                      type: string
+                      example: 12345
+                    username:
+                      type: string
+                      example: johndoe
+                    name:
+                      type: string
+                      example: John Doe
+                    email:
+                      type: string
+                      format: email
+                      example:
+                    role:
+                      type: string
+                      enum: [sudo, admin, user]
+                      example: user
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /server/create:
+    post:
+      summary: Create a new server
+      description: Creates a new server with the provided details.
+      security:
+      - bearerAuth: []
+      requestBody:
+        description: Server information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                server_id:
+                  type: string
+                  example: "1"
+                server_name:
+                  type: string
+                  example: "Server 1"
+                ipv4:
+                  type: string
+                  format: ipv4
+                  example: ""
+              required:
+                - server_id
+                - server_name
+                - ipv4
+
+      responses:
+        '201':
+          description: Server created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server created successfully
+                  ID:
+                    type: string
+                    example: 12345
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid input data
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+  
+  /server/view:
+    get:
+      summary: View server information
+      description: Retrieves information about filtered servers.
+      security:
+      - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: true
+          description: The starting point for filtering servers
+          schema:
+            type: string
+            example: 0
+        - name: to
+          in: query
+          required: true
+          description: The endpoint for filtering servers
+          schema:
+            type: string
+            example: 10
+        - name: sort_column
+          in: query
+          required: true
+          description: The column to sort the servers by
+          schema:
+            type: string
+            example: server_id
+        - name: sort_order
+          in: query
+          required: true
+          description: The order to sort the servers (asc or desc)
+          schema:
+            type: string
+            example: asc
+        - name: server_id
+          in: query
+          required: false
+          description: The ID of the server to retrieve
+          schema:
+            type: string
+            example: "1"
+        - name: server_name
+          in: query
+          required: false
+          description: The name of the server to retrieve
+          schema:
+            type: string
+            example: "Server 1"
+        - name: status
+          in: query
+          required: false
+          description: The status of the server to retrieve
+          schema:
+            type: string
+            example: "On"
+        - name: ipv4
+          in: query
+          required: false
+          description: The IPv4 address of the server to retrieve
+          schema:
+            type: string
+            format: ipv4
+            example: "192.168.1.1"
+      responses:
+        '200':
+          description: Servers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    server_id:
+                      type: string
+                      example: "1"
+                    server_name:
+                      type: string
+                      example: "Server 1"
+                    status:
+                      type: string
+                      example: "On"
+                    ipv4:
+                      type: string
+                      format: ipv4
+                      example: "192.168.1.1"
+        '404':
+          description: No servers found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: No servers found
+        
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /server/update:
+    put:
+      summary: Update server information
+      description: Updates the information of an existing server.
+      security:
+      - bearerAuth: []
+      parameters:
+        - name: server_id
+          in: query
+          required: true
+          description: The ID of the server to update
+          schema:
+            type: string
+            example: "1"
+      requestBody:
+        description: Updated server information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                server_name:
+                  type: string
+                  example: "Updated Server 1"
+                ipv4:
+                  type: string
+                  format: ipv4
+                  example: ""
+      responses:
+        '200':
+          description: Server updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server updated successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid input data
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  /server/delete:
+    delete:
+      summary: Delete a server
+      description: Deletes a server with the provided ID.
+      security:
+      - bearerAuth: []
+      parameters:
+        - name: server_id
+          in: query
+          required: true
+          description: The ID of the server to delete
+          schema:
+            type: string
+            example: "1"
+      responses:
+          '200':
+            description: Server deleted successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Server deleted successfully
+          '400': 
+            description: Bad request
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: Invalid server ID
+          '404':
+            description: Server not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: Server not found
+          '500':
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: Internal server error
+  /server/import:
+    post:
+      summary: Import server data
+      description: Imports server data from a file.
+      security:
+      - bearerAuth: []
+      requestBody:
+        description: File containing server data
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                servers_file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Server data imported successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imported_servers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        server_id:
+                          type: string
+                          example: "1"
+                        server_name:
+                          type: string
+                          example: "Server 1"
+                        status:
+                          type: string
+                          example: "On"
+                        ipv4:
+                          type: string
+                          format: ipv4
+                          example: "192.168.1.1"
+                  non_imported_servers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        server_id:
+                          type: string
+                          example: "1"
+                        server_name:
+                          type: string
+                          example: "Server 1"
+                        status:
+                          type: string
+                          example: "On"
+                        ipv4:
+                          type: string
+                          format: ipv4
+                          example: "192.168.1.1"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid file format
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+  /server/export:
+    get:
+      summary: Export server data
+      description: Exports server data to an excel file.
+      security:
+      - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: true
+          description: The starting point for filtering servers
+          schema:
+            type: string
+            example: 0
+        - name: to
+          in: query
+          required: true
+          description: The endpoint for filtering servers
+          schema:
+            type: string
+            example: 10
+        - name: sort_column
+          in: query
+          required: true
+          description: The column to sort the servers by
+          schema:
+            type: string
+            example: server_id
+        - name: sort_order
+          in: query
+          required: true
+          description: The order to sort the servers (asc or desc)
+          schema:
+            type: string
+            example: asc
+        - name: server_id
+          in: query
+          required: false
+          description: The ID of the server to retrieve
+          schema:
+            type: string
+            example: "1"
+        - name: server_name
+          in: query
+          required: false
+          description: The name of the server to retrieve
+          schema:
+            type: string
+            example: "Server 1"
+        - name: status
+          in: query
+          required: false
+          description: The status of the server to retrieve
+          schema:
+            type: string
+            example: "On"
+        - name: ipv4
+          in: query
+          required: false
+          description: The IPv4 address of the server to retrieve
+          schema:
+            type: string
+            format: ipv4
+            example: "192.168.1.1"
+      responses:
+        '200':
+          description: Server data exported successfully
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request parameters
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error
+
+  
+  /mail/send:
+    post:
+      summary: Send email manually
+      description: Sends an email to the specified recipient.
+      security:
+      - bearerAuth: []
+      parameters:
+        - name: start_time
+          in: query
+          required: true
+          description: The start time for filtering emails
+          schema:
+            type: string
+            example: 2025-06-24T00:00:00Z
+        - name: end_time
+          in: query
+          required: true
+          description: The end time for filtering emails
+          schema:
+            type: string
+            example: 2025-06-24T23:59:59Z
+        - name: to
+          in: query
+          required: true
+          description: The email receiver
+          schema:
+            type: string
+            example: abc@gmail.com
+      responses:
+        '200':
+          description: Email sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email sent successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid email data
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal server error

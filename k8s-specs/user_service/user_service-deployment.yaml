@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: vcs-sms
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: user_service
+          imagePullPolicy: Never
+          env:
+            - name: USER_SERVICE_PORT
+              value: "10001"
+          ports:
+            - containerPort: 10001
