@@ -26,3 +26,11 @@ spec:
                 name: server-administration-service
                 port:
                   number: 10002
+          
+          - path: /mail/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: mail-service
+                port:
+                  number: 10003
