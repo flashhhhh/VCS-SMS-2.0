@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: vcs-sms
+  name: server-administration-service
+spec:
+  selector:
+    app: server-administration-service
+  ports:
+    - port: 10002
+      targetPort: 10002

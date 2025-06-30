@@ -44,3 +44,17 @@ data:
 
     INSERT INTO users (id, username, password, name, email, role) VALUES
         (gen_random_uuid(), 'admin', '$2a$10$6smDl/of0VnSPLw.1qFUgurMGLBaEg.FTLvuXtCTlv8fMQT1dVC2C', 'Admin', 'admin@gmail.com', 'admin');
+
+    CREATE DATABASE server_administration_db;
+
+    \c server_administration_db;
+
+    CREATE TABLE IF NOT EXISTS servers (
+        id SERIAL,
+        server_id VARCHAR(255) PRIMARY KEY,
+        server_name VARCHAR(255) UNIQUE NOT NULL,
+        status VARCHAR(255) NOT NULL,
+        created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ipv4 VARCHAR(255) NOT NULL
+    );

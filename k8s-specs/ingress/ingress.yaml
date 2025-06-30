@@ -18,3 +18,11 @@ spec:
                 name: user-service
                 port:
                   number: 10001
+          
+          - path: /server/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: server-administration-service
+                port:
+                  number: 10002

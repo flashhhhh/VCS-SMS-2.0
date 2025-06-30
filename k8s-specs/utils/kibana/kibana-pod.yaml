@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: vcs-sms
+  name: kibana
+spec:
+  containers:
+    - name: kibana
+      image: docker.elastic.co/kibana/kibana:9.0.2
+      env:
+        - name: ELASTICSEARCH_HOSTS
+          value: http://elasticsearch:9200
+      ports:
+        - containerPort: 5601

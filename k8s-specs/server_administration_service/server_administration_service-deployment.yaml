@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: vcs-sms
+  name: server-administration-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server-administration-service
+  template:
+    metadata:
+      labels:
+        app: server-administration-service
+    spec:
+      containers:
+        - name: server-administration-service
+          image: server_administration_service
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 10002
