@@ -7,5 +7,9 @@ spec:
   selector:
     app: server-administration-service
   ports:
-    - port: 10002
+    - name: rest
+      port: 10002
       targetPort: 10002
+    - name: grpc
+      port: 50051
+      targetPort: 50051

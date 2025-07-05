@@ -17,5 +17,10 @@ spec:
         - name: mail-service
           image: mail_service
           imagePullPolicy: Never
+          env:
+            - name: GRPC_SERVER_ADMINISTRATION_SERVER
+              value: "server-administration-service"
+            - name: MAIL_SERVICE_PORT
+              value: "10003"
           ports:
             - containerPort: 10003

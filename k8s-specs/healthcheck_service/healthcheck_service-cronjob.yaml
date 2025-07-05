@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: vcs-sms
+  name: healthcheck-service
+spec:
+  schedule: "*/2 * * * *"
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: healthcheck-service
+              image: healthcheck_service
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: GRPC_SERVER_ADMINISTRATION_SERVER
+                  value: "server-administration-service"
+          restartPolicy: OnFailure

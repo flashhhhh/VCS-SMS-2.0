@@ -4,6 +4,6 @@ services:
     environment:
       - SWAGGER_JSON=/openapi.yaml
     ports:
-      - 8080:8080
+      - 8000:8080
     volumes:
       - ./docs/openapi.yaml:/openapi.yaml
