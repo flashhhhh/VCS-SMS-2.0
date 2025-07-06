@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"server_administration_service/internal/domain"
 	"time"
 
@@ -161,6 +162,11 @@ func (r *serverInfoRepository) GetServerSumUpTimeRatio(startTime, endTime string
 	if err := json.NewDecoder(resp.Body).Decode(&answer); err != nil {
 		logging.LogMessage("server_administration_service", "Failed to decode Elasticsearch query's result, err: " + err.Error(), "ERROR")
 		return 0, err
+	}
+
+	if answer["error"] != nil {
+		logging.LogMessage("server_administration_service", "Elasticsearch query returned an error with status: " + fmt.Sprintf("%v", answer["status"].(float64)), "ERROR")
+		return 0, nil
 	}
 
 	buckets := answer["aggregations"].(map[string]interface{})["id_bucket"].(map[string]interface{})["buckets"].([]interface{})
