@@ -73,9 +73,14 @@ func (s *serverCRUDService) ImportServers(buf []byte) ([]domain.Server, []domain
 	}
 
 	rows, err := f.GetRows("Servers")
-	if err != nil || len(rows) < 2 {
+	if err != nil {
 		logging.LogMessage("server_administration_service", "Failed to get rows from Excel file: "+err.Error(), "ERROR")
 		return nil, nil, err
+	}
+
+	if len(rows) < 2 {
+		logging.LogMessage("server_administration_service", "Excel files doesn't have any row data", "ERROR")
+		return nil, nil, errors.New("Excel files doesn't have any row data")
 	}
 
 	servers := make([]domain.Server, 0)
@@ -149,11 +154,7 @@ func (s *serverCRUDService) ExportServers(serverFilter *dto.ServerFilter, from, 
 	}
 
 	var buf bytes.Buffer
-	err = f.Write(&buf)
-	if err != nil {
-		logging.LogMessage("server_administration_service", "Failed to write Excel file to buffer: "+err.Error(), "ERROR")
-		return nil, err
-	}
+	_ = f.Write(&buf)
 
 	logging.LogMessage("server_administration_service", "Servers exported successfully", "INFO")
 	return buf.Bytes(), nil

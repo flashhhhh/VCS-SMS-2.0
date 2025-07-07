@@ -1,12 +1,16 @@
 package repository
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
 	"server_administration_service/internal/domain"
 	"server_administration_service/internal/dto"
-	eslib "server_administration_service/infrastructure/elasticsearch"
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v9"
+	"github.com/elastic/go-elasticsearch/v9/esapi"
 	"github.com/flashhhhh/pkg/env"
 	"gorm.io/gorm"
 )
@@ -49,7 +53,27 @@ func (r *serverGRPCRepository) UpdateStatus(server_id, status string) (error) {
 		"Status": status,
 		"Timestamp": time.Now(),
 	}
-	eslib.CreateDocument(r.es, env.GetEnv("ES_NAME", "ping_status"), docs)
+
+	data, err := json.Marshal(docs)
+	if err != nil {
+		return errors.New("Can't convert document to JSON")
+	}
+
+	req := esapi.IndexRequest{
+		Index:   env.GetEnv("ES_NAME", "ping_status"),
+		Body:    bytes.NewReader(data),
+		Refresh: "true",
+	}
+
+	res, err := req.Do(context.Background(), r.es)
+	if err != nil {
+		return errors.New("Can't send request to ES")
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		return errors.New("Error response from ES: " + res.String())
+	}
 
 	return nil
 }

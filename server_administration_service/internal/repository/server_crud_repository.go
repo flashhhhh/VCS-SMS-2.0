@@ -130,23 +130,10 @@ func (r *serverCRUDRepository) UpdateServer(serverID string, updatedData map[str
 			return err
 		}
 
-	// Get the server's id
-	var server domain.Server
-	if err := r.db.Where("server_id = ?", serverID).First(&server).Error; err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func (r *serverCRUDRepository) DeleteServer(serverID string) error {
-	// Get the server's ID before deleting
-	var server domain.Server
-	if err := r.db.Where("server_id = ?", serverID).First(&server).Error; err != nil {
-		return err
-	}
-
-	// Delete the server
 	if err := r.db.Where("server_id = ?", serverID).Delete(&domain.Server{}).Error; err != nil {
 		return err
 	}

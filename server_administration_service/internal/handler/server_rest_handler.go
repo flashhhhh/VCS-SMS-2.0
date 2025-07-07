@@ -115,13 +115,7 @@ func (h *serverRestHandler) ViewServers(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	response, err := json.Marshal(servers)
-	if err != nil {
-		logging.LogMessage("server_administration_service", "Failed to marshal servers response: "+err.Error(), "ERROR")
-		http.Error(w, "Failed to process servers data", http.StatusInternalServerError)
-		return
-	}
-
+	response, _ := json.Marshal(servers)
 	w.Write(response)
 }
 
@@ -218,13 +212,7 @@ func (h *serverRestHandler) ImportServers(w http.ResponseWriter, r *http.Request
 		"non_imported_servers": nonImportedServer,
 	}
 	
-	responseJSON, err := json.Marshal(response)
-	if err != nil {
-		logging.LogMessage("server_administration_service", "Failed to marshal response: "+err.Error(), "ERROR")
-		http.Error(w, "Failed to process servers data", http.StatusInternalServerError)
-		return
-	}
-
+	responseJSON, _ := json.Marshal(response)
 	w.Write(responseJSON)
 }
 
