@@ -4,7 +4,6 @@ import (
 	"context"
 	"server_administration_service/internal/service"
 	"server_administration_service/proto"
-	"strconv"
 
 	"github.com/flashhhhh/pkg/logging"
 )
@@ -36,7 +35,7 @@ func (h *ServerGRPCHandler) GetAddressAndStatus(ctx context.Context, req *proto.
 	idAddressAndStatusList := &proto.IDAddressAndStatusList{}
 	for _, serverAddress := range serverAddresses {
 		idAddressAndStatusList.ServerList = append(idAddressAndStatusList.ServerList, &proto.IDAddressAndStatus{
-			Id: int64(serverAddress.ID),
+			ServerId: serverAddress.ServerID,
 			Address: serverAddress.IPv4,
 			Status: serverAddress.Status,
 		})
@@ -47,18 +46,18 @@ func (h *ServerGRPCHandler) GetAddressAndStatus(ctx context.Context, req *proto.
 
 func (h *ServerGRPCHandler) UpdateStatus(ctx context.Context, req *proto.ServerStatusList) (*proto.EmptyResponse, error) {
 	for _, serverStatus := range req.StatusList {
-		id := int(serverStatus.Id)
+		server_id := serverStatus.ServerId
 		status := serverStatus.Status
 
-		logging.LogMessage("server_administration_service", "Update status " + status + " for id " + strconv.Itoa(id), "INFO")
+		logging.LogMessage("server_administration_service", "Update status " + status + " for server id: " + server_id, "INFO")
 
-		err := h.serverGRPCService.UpdateStatus(id, status)
+		err := h.serverGRPCService.UpdateStatus(server_id, status)
 		if err != nil {
-			logging.LogMessage("server_administration_service", "Failed to update status " + status + " for id " + strconv.Itoa(id) + ", err: " + err.Error(), "INFO")
+			logging.LogMessage("server_administration_service", "Failed to update status " + status + " for server id: " + server_id + ", err: " + err.Error(), "INFO")
 			// return &proto.EmptyResponse{}, err
 		}
 
-		logging.LogMessage("server_administration_service", "Update status " + status + " for id " + strconv.Itoa(id) + " successfully!", "INFO")
+		logging.LogMessage("server_administration_service", "Update status " + status + " for server id: " + server_id + " successfully!", "INFO")
 	}
 
 	return &proto.EmptyResponse{}, nil

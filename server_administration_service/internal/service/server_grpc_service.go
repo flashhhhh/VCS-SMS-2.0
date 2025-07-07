@@ -7,7 +7,7 @@ import (
 
 type ServerGRPCService interface {
 	GetServerAddresses() ([]dto.ServerAddress, error)
-	UpdateStatus(id int, status string) (error)
+	UpdateStatus(server_id, status string) (error)
 }
 
 type serverGRPCService struct {
@@ -24,6 +24,6 @@ func (s *serverGRPCService) GetServerAddresses() ([]dto.ServerAddress, error) {
 	return s.serverGRPCRepository.GetServerAddresses()
 }
 
-func (s *serverGRPCService) UpdateStatus(id int, status string) (error) {
-	return s.serverGRPCRepository.UpdateStatus(id, status)
+func (s *serverGRPCService) UpdateStatus(server_id, status string) (error) {
+	return s.serverGRPCRepository.UpdateStatus(server_id, status)
 }

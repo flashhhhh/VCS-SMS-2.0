@@ -14,7 +14,7 @@ service ServerAdministrationService {
 message EmptyRequest {}
 
 message IDAddressAndStatus {
-    int64 id = 1;
+    string server_id = 1;
     string address = 2;
     string status = 3;
 }
@@ -24,7 +24,7 @@ message IDAddressAndStatusList {
 }
 
 message ServerStatus {
-    int64 id = 1;
+    string server_id = 1;
     string status = 2;
 }
 

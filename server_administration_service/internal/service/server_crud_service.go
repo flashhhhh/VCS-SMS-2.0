@@ -14,7 +14,7 @@ import (
 )
 
 type ServerCRUDService interface {
-	CreateServer(server_id, server_name, ipv4 string) (int, error)
+	CreateServer(server_id, server_name, ipv4 string) (string, error)
 	ViewServers(serverFilter *dto.ServerFilter, from, to int, sortedColumn string, order string) ([]domain.Server, error)
 	UpdateServer(server_id string, updatedData map[string]interface{}) error
 	DeleteServer(server_id string) error
@@ -32,7 +32,7 @@ func NewServerCRUDService(serverCRUDRepository repository.ServerCRUDRepository) 
 	}
 }
 
-func (s *serverCRUDService) CreateServer(server_id, server_name, ipv4 string) (int, error) {
+func (s *serverCRUDService) CreateServer(server_id, server_name, ipv4 string) (string, error) {
 	server := &domain.Server{
 		ServerID:   server_id,
 		ServerName: server_name,
@@ -42,7 +42,7 @@ func (s *serverCRUDService) CreateServer(server_id, server_name, ipv4 string) (i
 
 	id, err := s.serverCRUDRepository.CreateServer(server)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	return id, nil
 }

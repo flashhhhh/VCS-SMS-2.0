@@ -1,7 +1,7 @@
 package healthcheck
 
 import (
-	"healthcheck/proto"
+	"healthcheck_service/proto"
 	"strconv"
 	"sync"
 
@@ -30,7 +30,7 @@ func CheckAllServers(serverAddresses *proto.IDAddressAndStatusList) (proto.Serve
 				<-semaphore
 			}()
 
-			id := serverAddress.Id
+			server_id := serverAddress.ServerId
 			address := serverAddress.Address
 			status := serverAddress.Status
 
@@ -49,7 +49,7 @@ func CheckAllServers(serverAddresses *proto.IDAddressAndStatusList) (proto.Serve
 			if status != newStatus {
 				mu.Lock()
 				serverStatusList = append(serverStatusList, &proto.ServerStatus{
-					Id:     id,
+					ServerId: server_id,
 					Status: newStatus,
 				})
 				mu.Unlock()

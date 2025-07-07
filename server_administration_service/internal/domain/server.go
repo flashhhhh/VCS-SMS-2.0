@@ -3,7 +3,6 @@ package domain
 import "time"
 
 type Server struct {
-	ID int `json:"id" gorm:"autoIncrement"`
 	ServerID string `json:"server_id" gorm:"primary_key;unique"`
 	ServerName string `json:"server_name" gorm:"unique;not null"`
 	Status string `json:"status" gorm:"not null"`

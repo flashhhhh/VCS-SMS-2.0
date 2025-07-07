@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	grpcclient "healthcheck/infrastructure/grpc_client"
-	"healthcheck/infrastructure/healthcheck"
-	"healthcheck/proto"
+	grpcclient "healthcheck_service/infrastructure/grpc_client"
+	"healthcheck_service/infrastructure/healthcheck"
+	"healthcheck_service/proto"
 	"os"
 	"path/filepath"
 	"strconv"

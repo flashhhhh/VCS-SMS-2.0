@@ -2,7 +2,7 @@ package grpcclient
 
 import (
 	"context"
-	"healthcheck/proto"
+	"healthcheck_service/proto"
 
 	"github.com/flashhhhh/pkg/env"
 	"google.golang.org/grpc"

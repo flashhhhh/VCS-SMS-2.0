@@ -45,19 +45,19 @@ func (h *serverRestHandler) CreateServer(w http.ResponseWriter, r *http.Request)
 	serverName, _ := requestBody["server_name"].(string)
 	ipAddress, _ := requestBody["ipv4"].(string)
 	
-	id, err := h.service.CreateServer(serverID, serverName, ipAddress)
+	server_id, err := h.service.CreateServer(serverID, serverName, ipAddress)
 	if err != nil {
 		logging.LogMessage("server_administration_service", "Failed to create server: "+err.Error(), "ERROR")
 		http.Error(w, "Failed to create server", http.StatusInternalServerError)
 		return
 	}
 
-	logging.LogMessage("server_administration_service", "Server created successfully with ID: "+strconv.Itoa(id), "INFO")
+	logging.LogMessage("server_administration_service", "Server created successfully with ID: " + server_id, "INFO")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	response := map[string]interface{}{
 		"message":  "Server created successfully",
-		"ID": strconv.Itoa(id),
+		"ServerID": server_id,
 	}
 	json.NewEncoder(w).Encode(response)
 }

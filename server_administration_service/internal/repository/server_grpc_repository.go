@@ -13,7 +13,7 @@ import (
 
 type ServerGRPCRepository interface {
 	GetServerAddresses() ([]dto.ServerAddress, error)
-	UpdateStatus(id int, status string) (error)
+	UpdateStatus(server_id, status string) (error)
 }
 
 type serverGRPCRepository struct {
@@ -31,7 +31,7 @@ func NewServerGRPCRepository(db *gorm.DB, es *elasticsearch.Client) ServerGRPCRe
 func (r *serverGRPCRepository) GetServerAddresses() ([]dto.ServerAddress, error) {
 	var serverAddresses []dto.ServerAddress
 	if err := r.db.Model(&domain.Server{}).
-		Select("id", "ipv4", "status").
+		Select("server_id", "ipv4", "status").
 		Find(&serverAddresses).Error; err != nil {
 			return nil, err
 		}
@@ -39,13 +39,13 @@ func (r *serverGRPCRepository) GetServerAddresses() ([]dto.ServerAddress, error)
 	return serverAddresses, nil
 }
 
-func (r *serverGRPCRepository) UpdateStatus(id int, status string) (error) {
-	if err := r.db.Model(&domain.Server{}).Where("id = ?", id).Update("status", status).Error; err != nil {
+func (r *serverGRPCRepository) UpdateStatus(server_id, status string) (error) {
+	if err := r.db.Model(&domain.Server{}).Where("server_id = ?", server_id).Update("status", status).Error; err != nil {
 		return err
 	}
 
 	docs := map[string]any {
-		"ID": id,
+		"ID": server_id,
 		"Status": status,
 		"Timestamp": time.Now(),
 	}

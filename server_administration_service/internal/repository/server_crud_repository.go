@@ -10,7 +10,7 @@ import (
 )
 
 type ServerCRUDRepository interface {
-	CreateServer(server *domain.Server) (int, error)
+	CreateServer(server *domain.Server) (string, error)
 	CreateServers(servers []domain.Server) ([]domain.Server, []domain.Server, error)
 	ViewServers(serverFilter *dto.ServerFilter, from, to int, sortedColumn string, order string) ([]domain.Server, error)
 	UpdateServer(server_id string, updatedData map[string]interface{}) error
@@ -27,10 +27,10 @@ func NewServerCRUDRepository(db *gorm.DB) ServerCRUDRepository {
 	}
 }
 
-func (r *serverCRUDRepository) CreateServer(server *domain.Server) (int, error) {
+func (r *serverCRUDRepository) CreateServer(server *domain.Server) (string, error) {
 	err := r.db.Create(server).Error
 	if (err != nil) {
-		return 0, err
+		return "", err
 	}
 
 	// Write to Elasticsearch
@@ -50,7 +50,7 @@ func (r *serverCRUDRepository) CreateServer(server *domain.Server) (int, error) 
 
 	// eslib.CreateDocument(r.es, env.GetEnv("ES_NAME", "ping_status"), doc)
 	
-	return server.ID, nil
+	return server.ServerID, nil
 }
 
 func (r *serverCRUDRepository) CreateServers(servers []domain.Server) ([]domain.Server, []domain.Server, error) {
