@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: mail-service
-          image: mail_service
-          imagePullPolicy: Never
+          image: flashhhhh/mail_service:2.0.0
+          imagePullPolicy: IfNotPresent
           env:
             - name: GRPC_SERVER_ADMINISTRATION_SERVER
               value: "server-administration-service"

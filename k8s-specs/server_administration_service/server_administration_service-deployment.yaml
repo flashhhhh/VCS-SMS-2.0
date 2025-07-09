@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: server-administration-service
-          image: server_administration_service
-          imagePullPolicy: Never
+          image: flashhhhh/server_administration_service:2.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 10002
             - containerPort: 50051
