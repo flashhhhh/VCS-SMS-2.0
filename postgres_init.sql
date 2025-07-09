@@ -19,7 +19,6 @@ CREATE DATABASE server_administration_db;
 \c server_administration_db;
 
 CREATE TABLE IF NOT EXISTS servers (
-    id SERIAL,
     server_id VARCHAR(255) PRIMARY KEY,
     server_name VARCHAR(255) UNIQUE NOT NULL,
     status VARCHAR(255) NOT NULL,

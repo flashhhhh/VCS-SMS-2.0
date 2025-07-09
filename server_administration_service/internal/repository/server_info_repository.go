@@ -88,7 +88,7 @@ func (r *serverInfoRepository) GetServerSumUpTimeRatio(startTime, endTime string
 		"aggs": map[string]interface{}{
 			"id_bucket": map[string]interface{}{
 				"terms": map[string]interface{}{
-					"field": "ID",
+					"field": "ID.keyword",
 					"size": 10000,
 				},
 				"aggs": map[string]interface{}{

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	grpcclient "healthcheck_service/infrastructure/grpc_client"
 	"healthcheck_service/infrastructure/healthcheck"
 	"healthcheck_service/proto"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/flashhhhh/pkg/env"
+	"github.com/flashhhhh/pkg/kafka"
 	"github.com/flashhhhh/pkg/logging"
 )
 
@@ -39,7 +41,22 @@ func main() {
 		logging.LogMessage("healthcheck_service", "Failed to connect to Server Administration's GRPC server, err: " + err.Error(), "ERROR")
 		logging.LogMessage("healthcheck_service", "Exiting ...", "FATAL")
 		os.Exit(1)
+	} else {
+		logging.LogMessage("healthcheck_service", "Successfully connect to GRPC server", "INFO")
 	}
+
+	// Initialize Kafka producer
+	kafka_address := env.GetEnv("KAFKA_HOST", "kafka") + ":" + env.GetEnv("KAFKA_PORT", "9092")
+	kafkaProducer, err := kafka.NewKafkaProducer([]string{kafka_address})
+	if err != nil {
+		logging.LogMessage("healthcheck_service", "Failed to connect to Kafka Server, err: " + err.Error(), "ERROR")
+		logging.LogMessage("healthcheck_service", "Exiting ...", "FATAL")
+		os.Exit(1)
+	} else {
+		logging.LogMessage("healthcheck_service", "Successfully connect to Kafka address: " + kafka_address, "INFO")
+	}
+
+	kafka_topic := env.GetEnv("KAFKA_TOPIC", "healthcheck_topic")
 
 	healthcheckPeriodStr := env.GetEnv("HEALTHCHECK_PERIOD", "0")
 	healthcheckPeriod, _ := strconv.Atoi(healthcheckPeriodStr)
@@ -51,12 +68,46 @@ func main() {
 		if err != nil {
 			logging.LogMessage("healthcheck_service", "Failed to receive addresses and status of all servers, err: " + err.Error(), "ERROR")
 		} else {
-			serverStatusList, err := healthcheck.CheckAllServers(serverAddressesList)
-			if err != nil {
-				logging.LogMessage("healthcheck_service", "Failed to healthcheck all servers, err: " + err.Error(), "ERROR")
-			}
+			for _, serverAddress := range serverAddressesList.ServerList {
+				server_id := serverAddress.ServerId
+				address := serverAddress.Address
+				status := serverAddress.Status
 
-			serverAdministrationGRPCClient.UpdateStatus(context.Background(), &serverStatusList)
+				logging.LogMessage("healthcheck_service", "Pinging server " + server_id + " at address " + address, "INFO")
+				newStatusBool, err := healthcheck.IsHostUp(address)
+				if err != nil {
+					logging.LogMessage("healthcheck_service", "Pinging server " + server_id + " at address " + address + " has error: " + err.Error(), "ERROR")
+				}
+
+				newStatus := "Off"
+				if newStatusBool {
+					newStatus = "On"
+				}
+
+				logging.LogMessage("healthcheck_service", "Pinging server " + server_id + " at address " + address + " has status: " + newStatus, "INFO")
+
+				// Send message to Kafka if newStatus != status
+				if status != newStatus {
+					healthcheckResult := map[string]interface{}{
+						"server_id":	server_id,
+						"status":		newStatus,
+					}
+
+					logging.LogMessage("healthcheck_service", "Sending server " + server_id + " at address " + address +
+															" with status: " + newStatus + " to Kafka server", "INFO")
+
+					healthcheckMessage, _ := json.Marshal(healthcheckResult)
+					err := kafkaProducer.SendMessage(kafka_topic, healthcheckMessage)
+
+					if err != nil {
+						logging.LogMessage("healthcheck_service", "Failed to send server " + server_id + " at address " + address +
+															" with status " + newStatus + " to Kafka server, err: " + err.Error(), "ERROR")
+					} else {
+						logging.LogMessage("healthcheck_service", "Sending server " + server_id + " at address " + address +
+															" with status: " + newStatus + " to Kafka server successfully!", "INFO")
+					}
+				}
+			}
 		}
 
 		if healthcheckPeriod == 0 {

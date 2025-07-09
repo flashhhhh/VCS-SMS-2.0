@@ -66,34 +66,3 @@ func TestServerGRPCService_GetServerAddresses_Error(t *testing.T) {
 	}
 	mockRepo.AssertExpectations(t)
 }
-
-func TestServerGRPCService_UpdateStatus_Success(t *testing.T) {
-	mockRepo := new(mockServerGRPCRepository)
-	serverID := "server-123"
-	status := "active"
-	mockRepo.On("UpdateStatus", serverID, status).Return(nil)
-
-	svc := service.NewServerGRPCService(mockRepo)
-	err := svc.UpdateStatus(serverID, status)
-
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
-	}
-	mockRepo.AssertExpectations(t)
-}
-
-func TestServerGRPCService_UpdateStatus_Error(t *testing.T) {
-	mockRepo := new(mockServerGRPCRepository)
-	serverID := "server-123"
-	status := "inactive"
-	mockErr := errors.New("update failed")
-	mockRepo.On("UpdateStatus", serverID, status).Return(mockErr)
-
-	svc := service.NewServerGRPCService(mockRepo)
-	err := svc.UpdateStatus(serverID, status)
-
-	if err != mockErr {
-		t.Errorf("expected error %v, got %v", mockErr, err)
-	}
-	mockRepo.AssertExpectations(t)
-}

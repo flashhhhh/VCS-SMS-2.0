@@ -2,15 +2,17 @@ package main
 
 import (
 	"os"
+	"os/signal"
 	"path/filepath"
 	"server_administration_service/infrastructure/elasticsearch"
-	"server_administration_service/infrastructure/grpc"
 	"server_administration_service/infrastructure/postgres"
 	"server_administration_service/internal/handler"
 	"server_administration_service/internal/repository"
 	"server_administration_service/internal/service"
+	"syscall"
 
 	"github.com/flashhhhh/pkg/env"
+	"github.com/flashhhhh/pkg/kafka"
 	"github.com/flashhhhh/pkg/logging"
 )
 
@@ -56,15 +58,34 @@ func main() {
 				":" + env.GetEnv("ES_PORT", "9200")
 	es := elasticsearch.ConnectES(esAddress)
 
+	// Initialize Kafka Consumer Group
+	kafka_address := env.GetEnv("KAFKA_HOST", "localhost") + ":" + env.GetEnv("KAFKA_PORT", "9092")
+	brokers := []string{kafka_address}
+	groupID := "server_administration_group"
+	kafka_topic := env.GetEnv("KAFKA_TOPIC", "healthcheck_topic")
+	topics := []string{kafka_topic}
+
 	// Initialize the server
-	serverGRPCRepository := repository.NewServerGRPCRepository(db)
-	serverGRPCService := service.NewServerGRPCService(serverGRPCRepository)
+	serverKafkaRepository := repository.NewServerKafkaRepository(db, es)
+	serverKafkaService := service.NewServerKafaService(serverKafkaRepository)
+	serverKafkaHandler := handler.NewServerConsumerHandler(serverKafkaService)
 
-	serverInfoRepository := repository.NewServerInfoRepository(db, es)
-	serverInfoService := service.NewServerInfoService(serverInfoRepository)
-	serverGRPCHandler := handler.NewServerGRPCHandler(serverGRPCService, serverInfoService)
+	logging.LogMessage("server_administration_service", "Connecting to Kafka brokers: "+brokers[0], "INFO")
 
-	serverGRPCPort := env.GetEnv("SERVER_ADMINISTRATION_GPRC_PORT", "50051")
-	logging.LogMessage("server_administration_service", "Starting gRPC server on port " + serverGRPCPort, "INFO")
-	grpc.StartGRPCServer(serverGRPCHandler, serverGRPCPort)
+	consumerGroup, err := kafka.NewKafkaConsumerGroup(brokers, groupID, topics)
+	if err != nil {
+		logging.LogMessage("server_administration_service", "Failed to connect to Kafka: " + err.Error(), "FATAL")
+		logging.LogMessage("server_administration_service", "Exiting the program...", "FATAL")
+		os.Exit(1)
+	}
+
+	// Start Kafka consumer
+	consumerGroup.StartConsuming(serverKafkaHandler)
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sigs // Wait for interrupt
+	logging.LogMessage("server_administration_service", "Shutting down server...", "INFO")
+	consumerGroup.Stop()
 }

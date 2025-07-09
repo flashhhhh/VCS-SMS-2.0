@@ -44,25 +44,6 @@ func (h *ServerGRPCHandler) GetAddressAndStatus(ctx context.Context, req *proto.
 	return idAddressAndStatusList, nil
 }
 
-func (h *ServerGRPCHandler) UpdateStatus(ctx context.Context, req *proto.ServerStatusList) (*proto.EmptyResponse, error) {
-	for _, serverStatus := range req.StatusList {
-		server_id := serverStatus.ServerId
-		status := serverStatus.Status
-
-		logging.LogMessage("server_administration_service", "Update status " + status + " for server id: " + server_id, "INFO")
-
-		err := h.serverGRPCService.UpdateStatus(server_id, status)
-		if err != nil {
-			logging.LogMessage("server_administration_service", "Failed to update status " + status + " for server id: " + server_id + ", err: " + err.Error(), "INFO")
-			// return &proto.EmptyResponse{}, err
-		}
-
-		logging.LogMessage("server_administration_service", "Update status " + status + " for server id: " + server_id + " successfully!", "INFO")
-	}
-
-	return &proto.EmptyResponse{}, nil
-}
-
 func (h *ServerGRPCHandler) GetServersInformation(ctx context.Context, req *proto.TimeRequest) (*proto.ServersInformationResponse, error) {
 	numServers, err := h.serverInfoService.GetNumServers()
 	if err != nil {
