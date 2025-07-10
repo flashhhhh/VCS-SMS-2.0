@@ -90,48 +90,6 @@ func TestGetAddressAndStatus_Error(t *testing.T) {
 	}
 }
 
-func TestUpdateStatus_AllSuccess(t *testing.T) {
-	mockGRPC := new(mockServerGRPCService)
-	mockInfo := new(mockServerInfoService)
-	handler := handler.NewServerGRPCHandler(mockGRPC, mockInfo)
-
-	statusList := []*proto.ServerStatus{
-		{ServerId: "1", Status: "On"},
-		{ServerId: "2", Status: "Off"},
-	}
-	mockGRPC.On("UpdateStatus", mock.Anything, mock.Anything).Return(nil)
-
-	resp, err := handler.UpdateStatus(context.Background(), &proto.ServerStatusList{StatusList: statusList})
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-	if resp == nil {
-		t.Error("expected non-nil response")
-	}
-}
-
-func TestUpdateStatus_WithError(t *testing.T) {
-	mockGRPC := new(mockServerGRPCService)
-	mockInfo := new(mockServerInfoService)
-	handler := handler.NewServerGRPCHandler(mockGRPC, mockInfo)
-
-	statusList := []*proto.ServerStatus{
-		{ServerId: "1", Status: "On"},
-		{ServerId: "2", Status: "Off"},
-	}
-	// First call returns nil, second returns error
-	mockGRPC.On("UpdateStatus", "1", "On").Return(nil)
-	mockGRPC.On("UpdateStatus", "2", "Off").Return(errors.New("update error"))
-
-	resp, err := handler.UpdateStatus(context.Background(), &proto.ServerStatusList{StatusList: statusList})
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
-	}
-	if resp == nil {
-		t.Error("expected non-nil response")
-	}
-}
-
 func TestGetServersInformation_Success(t *testing.T) {
 	mockGRPC := new(mockServerGRPCService)
 	mockInfo := new(mockServerInfoService)

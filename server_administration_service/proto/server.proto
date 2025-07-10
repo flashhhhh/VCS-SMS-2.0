@@ -6,7 +6,6 @@ option go_package = "./proto";
 
 service ServerAdministrationService {
     rpc GetAddressAndStatus (EmptyRequest) returns (IDAddressAndStatusList);
-    rpc UpdateStatus (ServerStatusList) returns (EmptyResponse);
 
     rpc GetServersInformation (TimeRequest) returns (ServersInformationResponse);
 }
@@ -21,15 +20,6 @@ message IDAddressAndStatus {
 
 message IDAddressAndStatusList {
     repeated IDAddressAndStatus serverList = 1;
-}
-
-message ServerStatus {
-    string server_id = 1;
-    string status = 2;
-}
-
-message ServerStatusList {
-    repeated ServerStatus statusList = 1;
 }
 
 message EmptyResponse {}
