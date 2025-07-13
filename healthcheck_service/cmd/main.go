@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/flashhhhh/pkg/env"
@@ -61,6 +62,16 @@ func main() {
 	healthcheckPeriodStr := env.GetEnv("HEALTHCHECK_PERIOD", "0")
 	healthcheckPeriod, _ := strconv.Atoi(healthcheckPeriodStr)
 
+	maxGoroutinesStr := env.GetEnv("MAX_GOROUTINES", "10")
+	maxGoroutines, err := strconv.Atoi(maxGoroutinesStr)
+	if err != nil {
+		logging.LogMessage("healthcheck_service", "Max Goroutines environment is expected to be an integer, but found: " + maxGoroutinesStr, "ERROR")
+		logging.LogMessage("healthcheck_service", "Exiting ...", "FATAL")
+		os.Exit(1)
+	}
+
+	semaphore := make(chan struct{}, maxGoroutines)
+
 	for {
 		logging.LogMessage("healthcheck_service", "Get all addresses of all servers", "INFO")
 
@@ -68,52 +79,68 @@ func main() {
 		if err != nil {
 			logging.LogMessage("healthcheck_service", "Failed to receive addresses and status of all servers, err: " + err.Error(), "ERROR")
 		} else {
+			var wg sync.WaitGroup
+
 			for _, serverAddress := range serverAddressesList.ServerList {
-				server_id := serverAddress.ServerId
-				address := serverAddress.Address
-				status := serverAddress.Status
+				wg.Add(1)
 
-				logging.LogMessage("healthcheck_service", "Pinging server " + server_id + " at address " + address, "INFO")
-				newStatusBool, err := healthcheck.IsHostUp(address)
-				if err != nil {
-					logging.LogMessage("healthcheck_service", "Pinging server " + server_id + " at address " + address + " has error: " + err.Error(), "ERROR")
-				}
+				semaphore <- struct{}{}
 
-				newStatus := "Off"
-				if newStatusBool {
-					newStatus = "On"
-				}
+				go func(serverAddress *proto.IDAddressAndStatus) {
+					defer wg.Done()
+					defer func () {
+						<-semaphore
+					}()
 
-				logging.LogMessage("healthcheck_service", "Pinging server " + server_id + " at address " + address + " has status: " + newStatus, "INFO")
+					server_id := serverAddress.ServerId
+					address := serverAddress.Address
+					status := serverAddress.Status
 
-				// Send message to Kafka if newStatus != status
-				if status != newStatus {
-					healthcheckResult := map[string]interface{}{
-						"server_id":	server_id,
-						"status":		newStatus,
-					}
-
-					logging.LogMessage("healthcheck_service", "Sending server " + server_id + " at address " + address +
-															" with status: " + newStatus + " to Kafka server", "INFO")
-
-					healthcheckMessage, _ := json.Marshal(healthcheckResult)
-					err := kafkaProducer.SendMessage(kafka_topic, healthcheckMessage)
-
+					logging.LogMessage("healthcheck_service", "Pinging server " + server_id + " at address " + address, "INFO")
+					newStatusBool, err := healthcheck.IsHostUp(address)
 					if err != nil {
-						logging.LogMessage("healthcheck_service", "Failed to send server " + server_id + " at address " + address +
-															" with status " + newStatus + " to Kafka server, err: " + err.Error(), "ERROR")
-					} else {
-						logging.LogMessage("healthcheck_service", "Sending server " + server_id + " at address " + address +
-															" with status: " + newStatus + " to Kafka server successfully!", "INFO")
+						logging.LogMessage("healthcheck_service", "Pinging server " + server_id + " at address " + address + " has error: " + err.Error(), "ERROR")
 					}
-				}
+
+					newStatus := "Off"
+					if newStatusBool {
+						newStatus = "On"
+					}
+
+					logging.LogMessage("healthcheck_service", "Pinging server " + server_id + " at address " + address + " has status: " + newStatus, "INFO")
+
+					// Send message to Kafka if newStatus != status
+					if status != newStatus {
+						healthcheckResult := map[string]interface{}{
+							"server_id":	server_id,
+							"status":		newStatus,
+						}
+
+						logging.LogMessage("healthcheck_service", "Sending server " + server_id + " at address " + address +
+																" with status: " + newStatus + " to Kafka server", "INFO")
+
+						healthcheckMessage, _ := json.Marshal(healthcheckResult)
+						err := kafkaProducer.SendMessage(kafka_topic, healthcheckMessage)
+
+						if err != nil {
+							logging.LogMessage("healthcheck_service", "Failed to send server " + server_id + " at address " + address +
+																" with status " + newStatus + " to Kafka server, err: " + err.Error(), "ERROR")
+						} else {
+							logging.LogMessage("healthcheck_service", "Sending server " + server_id + " at address " + address +
+																" with status: " + newStatus + " to Kafka server successfully!", "INFO")
+						}
+					}
+				}(serverAddress)
 			}
+
+			wg.Wait()
 		}
 
 		if healthcheckPeriod == 0 {
 			return
 		}
 
+		logging.LogMessage("healthcheck_service", "Sleep for " + strconv.Itoa(healthcheckPeriod) + " seconds...", "INFO")
 		time.Sleep(time.Duration(healthcheckPeriod))
 	}
 }
