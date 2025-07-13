@@ -3,6 +3,8 @@ kind: Pod
 metadata:
   namespace: vcs-sms
   name: kibana
+  labels:
+    app: kibana
 spec:
   containers:
     - name: kibana

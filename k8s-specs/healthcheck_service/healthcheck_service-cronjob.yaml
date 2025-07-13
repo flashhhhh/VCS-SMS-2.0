@@ -4,7 +4,7 @@ metadata:
   namespace: vcs-sms
   name: healthcheck-service
 spec:
-  schedule: "*/2 * * * *"
+  schedule: "* * * * *"
   successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 2
   jobTemplate:
@@ -13,9 +13,13 @@ spec:
         spec:
           containers:
             - name: healthcheck-service
-              image: flashhhhh/healthcheck_service:2.0.0
+              image: flashhhhh/healthcheck_service:2.0.1
               imagePullPolicy: IfNotPresent
               env:
                 - name: GRPC_SERVER_ADMINISTRATION_SERVER
-                  value: "server-administration-service"
+                  value: server-administration-service
+                - name: KAFKA_HOST
+                  value: kafka
+                - name: KAFKA_PORT
+                  value: "9092"
           restartPolicy: OnFailure

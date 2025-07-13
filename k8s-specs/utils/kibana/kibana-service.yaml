@@ -4,8 +4,10 @@ metadata:
   namespace: vcs-sms
   name: kibana
 spec:
+  type: NodePort
   selector:
     app: kibana
   ports:
     - port: 5601
       targetPort: 5601
+      nodePort: 32297  # <- Add this line to fix the port

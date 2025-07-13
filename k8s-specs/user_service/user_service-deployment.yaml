@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: flashhhhh/user_service:2.0.0
+          image: flashhhhh/user_service:2.0.1
           imagePullPolicy: IfNotPresent
           env:
             - name: USER_SERVICE_PORT
