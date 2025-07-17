@@ -13,7 +13,7 @@ spec:
         spec:
           containers:
             - name: healthcheck-service
-              image: flashhhhh/healthcheck_service:2.0.1
+              image: flashhhhh/healthcheck_service:v2.0.1
               imagePullPolicy: IfNotPresent
               env:
                 - name: GRPC_SERVER_ADMINISTRATION_SERVER
