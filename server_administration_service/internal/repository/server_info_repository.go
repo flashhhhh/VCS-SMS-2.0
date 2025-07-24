@@ -5,10 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"server_administration_service/infrastructure/elasticsearch"
 	"server_administration_service/internal/domain"
 	"time"
 
-	"github.com/elastic/go-elasticsearch/v9"
 	"github.com/flashhhhh/pkg/logging"
 	"gorm.io/gorm"
 )
@@ -22,13 +22,13 @@ type ServerInfoRepository interface {
 
 type serverInfoRepository struct {
 	db *gorm.DB
-	es *elasticsearch.Client
+	esc elasticsearch.ElasticsearchClient
 }
 
-func NewServerInfoRepository(db *gorm.DB, es *elasticsearch.Client) ServerInfoRepository {
+func NewServerInfoRepository(db *gorm.DB, esc elasticsearch.ElasticsearchClient) ServerInfoRepository {
 	return &serverInfoRepository{
 		db: db,
-		es: es,
+		esc: esc,
 	}
 }
 
@@ -141,16 +141,10 @@ func (r *serverInfoRepository) GetServerSumUpTimeRatio(startTime, endTime string
 	}
 
 	var buf bytes.Buffer
-	if err := json.NewEncoder(&buf).Encode(query); err != nil {
-		logging.LogMessage("server_administration_service", "Failed to encode query to buffer. Err: " + err.Error(), "ERROR")
-		return 0, err
-	}
+	json.NewEncoder(&buf).Encode(query)
 
-	resp, err := r.es.Search(
-		r.es.Search.WithContext(context.Background()),
-		r.es.Search.WithIndex("ping_status"),
-		r.es.Search.WithBody(&buf),
-	)
+	resp, err := r.esc.Search(context.Background(), "ping_status", buf)
+
 	if err != nil {
 		logging.LogMessage("server_administration_service", "Failed to get Elasticsearch response. Err: " + err.Error(), "ERROR")
 		return 0, err
@@ -159,10 +153,7 @@ func (r *serverInfoRepository) GetServerSumUpTimeRatio(startTime, endTime string
 	defer resp.Body.Close()
 
 	var answer map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&answer); err != nil {
-		logging.LogMessage("server_administration_service", "Failed to decode Elasticsearch query's result, err: " + err.Error(), "ERROR")
-		return 0, err
-	}
+	json.NewDecoder(resp.Body).Decode(&answer)
 
 	if answer["error"] != nil {
 		logging.LogMessage("server_administration_service", "Elasticsearch query returned an error with status: " + fmt.Sprintf("%v", answer["status"].(float64)), "ERROR")

@@ -55,12 +55,13 @@ func main() {
 	esAddress := env.GetEnv("ES_HOST", "http://localhost") +
 				":" + env.GetEnv("ES_PORT", "9200")
 	es := elasticsearch.ConnectES(esAddress)
+	esc := elasticsearch.NewElasticsearchClient(es)
 
 	// Initialize the server
 	serverGRPCRepository := repository.NewServerGRPCRepository(db)
 	serverGRPCService := service.NewServerGRPCService(serverGRPCRepository)
 
-	serverInfoRepository := repository.NewServerInfoRepository(db, es)
+	serverInfoRepository := repository.NewServerInfoRepository(db, esc)
 	serverInfoService := service.NewServerInfoService(serverInfoRepository)
 	serverGRPCHandler := handler.NewServerGRPCHandler(serverGRPCService, serverInfoService)
 

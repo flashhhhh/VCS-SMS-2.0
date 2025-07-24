@@ -1,15 +1,12 @@
 package repository
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
+	"server_administration_service/infrastructure/elasticsearch"
 	"server_administration_service/internal/domain"
 	"time"
 
-	"github.com/elastic/go-elasticsearch/v9"
-	"github.com/elastic/go-elasticsearch/v9/esapi"
 	"github.com/flashhhhh/pkg/env"
 	"gorm.io/gorm"
 )
@@ -19,14 +16,14 @@ type ServerKafkaRepository interface {
 }
 
 type serverKafkaRepository struct {
-	db *gorm.DB
-	es *elasticsearch.Client
+	db  *gorm.DB
+	esc elasticsearch.ElasticsearchClient
 }
 
-func NewServerKafkaRepository(db *gorm.DB, es *elasticsearch.Client) ServerKafkaRepository {
+func NewServerKafkaRepository(db *gorm.DB, esc elasticsearch.ElasticsearchClient) ServerKafkaRepository {
 	return &serverKafkaRepository{
-		db: db,
-		es: es,
+		db:  db,
+		esc: esc,
 	}
 }
 
@@ -42,25 +39,7 @@ func (r *serverKafkaRepository) UpdateStatus(server_id, status string) (error) {
 	}
 
 	data, err := json.Marshal(docs)
-	if err != nil {
-		return errors.New("can't convert document to JSON")
-	}
 
-	req := esapi.IndexRequest{
-		Index:   env.GetEnv("ES_NAME", "ping_status"),
-		Body:    bytes.NewReader(data),
-		Refresh: "true",
-	}
-
-	res, err := req.Do(context.Background(), r.es)
-	if err != nil {
-		return errors.New("can't send request to ES")
-	}
-	defer res.Body.Close()
-
-	if res.IsError() {
-		return errors.New("Error response from ES: " + res.String())
-	}
-
-	return nil
+	err = r.esc.Index(context.Background(), env.GetEnv("ES_NAME", "ping_status"), data)
+	return err
 }

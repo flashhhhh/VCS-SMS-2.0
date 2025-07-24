@@ -57,6 +57,7 @@ func main() {
 	esAddress := env.GetEnv("ES_HOST", "http://localhost") +
 				":" + env.GetEnv("ES_PORT", "9200")
 	es := elasticsearch.ConnectES(esAddress)
+	esc := elasticsearch.NewElasticsearchClient(es)
 
 	// Initialize Kafka Consumer Group
 	kafka_address := env.GetEnv("KAFKA_HOST", "localhost") + ":" + env.GetEnv("KAFKA_PORT", "9092")
@@ -66,7 +67,7 @@ func main() {
 	topics := []string{kafka_topic}
 
 	// Initialize the server
-	serverKafkaRepository := repository.NewServerKafkaRepository(db, es)
+	serverKafkaRepository := repository.NewServerKafkaRepository(db, esc)
 	serverKafkaService := service.NewServerKafaService(serverKafkaRepository)
 	serverKafkaHandler := handler.NewServerConsumerHandler(serverKafkaService)
 
