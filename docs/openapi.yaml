@@ -4,7 +4,7 @@ info:
   description: APIs for managing users and servers
   version: 1.0.0
 servers:
-  - url: http://138.197.238.48 # http://localhost
+  - url: http://138.197.240.116 # http://localhost
     description: Deployment server
 
 components:

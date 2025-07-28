@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: vcs-sms
+  name: mail-sender-job
+spec:
+  schedule: "* * * * *"  # Run daily at 01:00 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: mail-sender
+            image: curlimages/curl:latest
+            command:
+            - sh
+            - -c
+            - |
+              set -e
+
+              echo "[*] Logging in to get token..."
+              RESPONSE=$(curl -s -X POST http://159.89.253.175/user/login \
+                -H "accept: application/json" \
+                -H "Content-Type: application/json" \
+                -d '{"username": "admin", "password": "admin"}')
+
+              TOKEN=$(echo "$RESPONSE" | grep -o '"token":"[^"]*"' | cut -d':' -f2 | tr -d '"')
+
+              if [ -z "$TOKEN" ]; then
+                echo "[!] Failed to retrieve token"
+                exit 1
+              fi
+
+              echo "[*] Token acquired. Sending mail..."
+
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+                "http://159.89.253.175/mail/send?start_time=2025-06-24T00%3A00%3A00Z&end_time=2025-06-24T23%3A59%3A59Z&to=ngocanh56.hrt%40gmail.com" \
+                -H "accept: application/json" \
+                -H "Authorization: Bearer $TOKEN" \
+                -d '')
+
+              if [ "$STATUS" -eq 200 ]; then
+                echo "[✓] Mail sent successfully (HTTP $STATUS)"
+                exit 0
+              else
+                echo "[✗] Mail sending failed (HTTP $STATUS)"
+                exit 1
+              fi
+          restartPolicy: OnFailure
