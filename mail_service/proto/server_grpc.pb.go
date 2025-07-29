@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServerAdministrationService_GetAddressAndStatus_FullMethodName   = "/mail_service.ServerAdministrationService/GetAddressAndStatus"
-	ServerAdministrationService_GetServersInformation_FullMethodName = "/mail_service.ServerAdministrationService/GetServersInformation"
+	ServerAdministrationService_GetAddressAndStatus_FullMethodName   = "/server_administration_service.ServerAdministrationService/GetAddressAndStatus"
+	ServerAdministrationService_GetServersInformation_FullMethodName = "/server_administration_service.ServerAdministrationService/GetServersInformation"
 )
 
 // ServerAdministrationServiceClient is the client API for ServerAdministrationService service.
@@ -143,7 +143,7 @@ func _ServerAdministrationService_GetServersInformation_Handler(srv interface{},
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ServerAdministrationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "mail_service.ServerAdministrationService",
+	ServiceName: "server_administration_service.ServerAdministrationService",
 	HandlerType: (*ServerAdministrationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

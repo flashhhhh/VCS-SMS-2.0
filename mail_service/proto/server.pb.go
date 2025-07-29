@@ -321,15 +321,15 @@ var File_proto_server_proto protoreflect.FileDescriptor
 
 const file_proto_server_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/server.proto\x12\fmail_service\"\x0e\n" +
+	"\x12proto/server.proto\x12\x1dserver_administration_service\"\x0e\n" +
 	"\fEmptyRequest\"V\n" +
 	"\x12IDAddressAndStatus\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +
 	"\aaddress\x18\x02 \x01(\tR\aaddress\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\"Z\n" +
-	"\x16IDAddressAndStatusList\x12@\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\"k\n" +
+	"\x16IDAddressAndStatusList\x12Q\n" +
 	"\n" +
-	"serverList\x18\x01 \x03(\v2 .mail_service.IDAddressAndStatusR\n" +
+	"serverList\x18\x01 \x03(\v21.server_administration_service.IDAddressAndStatusR\n" +
 	"serverList\"\x0f\n" +
 	"\rEmptyResponse\"E\n" +
 	"\vTimeRequest\x12\x1c\n" +
@@ -341,10 +341,10 @@ const file_proto_server_proto_rawDesc = "" +
 	"numServers\x12\"\n" +
 	"\fnumOnServers\x18\x02 \x01(\x03R\fnumOnServers\x12$\n" +
 	"\rnumOffServers\x18\x03 \x01(\x03R\rnumOffServers\x12(\n" +
-	"\x0fmeanUpTimeRatio\x18\x04 \x01(\x01R\x0fmeanUpTimeRatio2\xd4\x01\n" +
-	"\x1bServerAdministrationService\x12W\n" +
-	"\x13GetAddressAndStatus\x12\x1a.mail_service.EmptyRequest\x1a$.mail_service.IDAddressAndStatusList\x12\\\n" +
-	"\x15GetServersInformation\x12\x19.mail_service.TimeRequest\x1a(.mail_service.ServersInformationResponseB\tZ\a./protob\x06proto3"
+	"\x0fmeanUpTimeRatio\x18\x04 \x01(\x01R\x0fmeanUpTimeRatio2\x98\x02\n" +
+	"\x1bServerAdministrationService\x12y\n" +
+	"\x13GetAddressAndStatus\x12+.server_administration_service.EmptyRequest\x1a5.server_administration_service.IDAddressAndStatusList\x12~\n" +
+	"\x15GetServersInformation\x12*.server_administration_service.TimeRequest\x1a9.server_administration_service.ServersInformationResponseB\tZ\a./protob\x06proto3"
 
 var (
 	file_proto_server_proto_rawDescOnce sync.Once
@@ -360,19 +360,19 @@ func file_proto_server_proto_rawDescGZIP() []byte {
 
 var file_proto_server_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_proto_server_proto_goTypes = []any{
-	(*EmptyRequest)(nil),               // 0: mail_service.EmptyRequest
-	(*IDAddressAndStatus)(nil),         // 1: mail_service.IDAddressAndStatus
-	(*IDAddressAndStatusList)(nil),     // 2: mail_service.IDAddressAndStatusList
-	(*EmptyResponse)(nil),              // 3: mail_service.EmptyResponse
-	(*TimeRequest)(nil),                // 4: mail_service.TimeRequest
-	(*ServersInformationResponse)(nil), // 5: mail_service.ServersInformationResponse
+	(*EmptyRequest)(nil),               // 0: server_administration_service.EmptyRequest
+	(*IDAddressAndStatus)(nil),         // 1: server_administration_service.IDAddressAndStatus
+	(*IDAddressAndStatusList)(nil),     // 2: server_administration_service.IDAddressAndStatusList
+	(*EmptyResponse)(nil),              // 3: server_administration_service.EmptyResponse
+	(*TimeRequest)(nil),                // 4: server_administration_service.TimeRequest
+	(*ServersInformationResponse)(nil), // 5: server_administration_service.ServersInformationResponse
 }
 var file_proto_server_proto_depIdxs = []int32{
-	1, // 0: mail_service.IDAddressAndStatusList.serverList:type_name -> mail_service.IDAddressAndStatus
-	0, // 1: mail_service.ServerAdministrationService.GetAddressAndStatus:input_type -> mail_service.EmptyRequest
-	4, // 2: mail_service.ServerAdministrationService.GetServersInformation:input_type -> mail_service.TimeRequest
-	2, // 3: mail_service.ServerAdministrationService.GetAddressAndStatus:output_type -> mail_service.IDAddressAndStatusList
-	5, // 4: mail_service.ServerAdministrationService.GetServersInformation:output_type -> mail_service.ServersInformationResponse
+	1, // 0: server_administration_service.IDAddressAndStatusList.serverList:type_name -> server_administration_service.IDAddressAndStatus
+	0, // 1: server_administration_service.ServerAdministrationService.GetAddressAndStatus:input_type -> server_administration_service.EmptyRequest
+	4, // 2: server_administration_service.ServerAdministrationService.GetServersInformation:input_type -> server_administration_service.TimeRequest
+	2, // 3: server_administration_service.ServerAdministrationService.GetAddressAndStatus:output_type -> server_administration_service.IDAddressAndStatusList
+	5, // 4: server_administration_service.ServerAdministrationService.GetServersInformation:output_type -> server_administration_service.ServersInformationResponse
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
